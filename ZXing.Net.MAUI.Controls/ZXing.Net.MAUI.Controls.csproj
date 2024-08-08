@@ -17,6 +17,7 @@
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<DebugType>portable</DebugType>
 		<OutputType>Library</OutputType>
+		<Platforms>AnyCPU;ARM64</Platforms>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="ZXing.Net" Version="0.16.9" />
