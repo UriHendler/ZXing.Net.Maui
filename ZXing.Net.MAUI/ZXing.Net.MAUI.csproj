@@ -95,4 +95,8 @@
 			<Compile Condition=" '%(Compile.ExcludeFromCurrentConfiguration)' == 'true' " Remove="**\*.net*$(DefaultLanguageSourceExtension)" />
 		</ItemGroup>
 	</Target>
+
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.82" />
+	</ItemGroup>
 </Project>
