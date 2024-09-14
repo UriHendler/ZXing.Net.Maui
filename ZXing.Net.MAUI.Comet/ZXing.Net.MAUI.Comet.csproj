@@ -22,9 +22,12 @@
 		<PackageReference Include="ZXing.Net" Version="0.16.9" />
 		<PackageReference Include="Clancey.Comet" Version="0.3.467-beta" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="8.0.21" />
-		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.21" />
+		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.90" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\ZXing.Net.MAUI\ZXing.Net.MAUI.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.90" />
 	</ItemGroup>
 </Project>
