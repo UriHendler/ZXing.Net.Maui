@@ -1,8 +1,6 @@
-﻿using Microsoft.Maui.Graphics;
-
-namespace ZXing.Net.Maui.Readers
+﻿namespace ZXing.Net.Maui.Readers
 {
-	public class ZXingBarcodeReader : Readers.IBarcodeReader
+	public class ZXingBarcodeReader : IBarcodeReader
 	{
 		BarcodeReaderGeneric zxingReader;
 
@@ -24,7 +22,7 @@ namespace ZXing.Net.Maui.Readers
 				zxingReader.AutoRotate = options.AutoRotate;
 				zxingReader.Options.TryInverted = options.TryInverted;
 				zxingReader.Options.UseCode39ExtendedMode = options.UseCode39ExtendedMode;
-            }
+			}
 		}
 
 		public BarcodeResult[] Decode(PixelBufferHolder image)
@@ -47,7 +45,7 @@ namespace ZXing.Net.Maui.Readers
 
 			var b = zxingReader.Decode(ls)?.ToBarcodeResult();
 			if (b != null)
-				return new[] { b };
+				return [b];
 
 			return null;
 		}

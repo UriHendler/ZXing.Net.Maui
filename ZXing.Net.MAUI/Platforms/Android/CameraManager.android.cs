@@ -62,7 +62,12 @@ namespace ZXing.Net.Maui
 
                imageAnalyzer = new ImageAnalysis
                    .Builder()
-                   .SetResolutionSelector(resolutionSelector)
+#if ANDROID
+				   .SetOutputImageFormat(ImageAnalysis.OutputImageFormatYuv420888)
+#else
+				   .SetOutputImageFormat(ImageAnalysis.OutputImageFormatRgba8888)
+#endif
+				   .SetResolutionSelector(resolutionSelector)
                    .SetBackpressureStrategy(ImageAnalysis.StrategyKeepOnlyLatest)
                    .Build();
 
