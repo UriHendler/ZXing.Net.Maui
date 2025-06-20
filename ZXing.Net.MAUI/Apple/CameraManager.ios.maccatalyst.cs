@@ -133,6 +133,37 @@ namespace ZXing.Net.Maui
 				captureSession.AddInput(captureInput);
 
 				captureSession.StartRunning();
+
+				SetZoomFactorForMacroModeDevice();
+			}
+		}
+
+		private bool IsMacroModeDevice()
+		{
+			return captureDevice?.DeviceType == AVCaptureDeviceType.BuiltInTripleCamera ||
+				captureDevice?.DeviceType == AVCaptureDeviceType.BuiltInDualCamera ||
+				captureDevice?.DeviceType == AVCaptureDeviceType.BuiltInDualWideCamera;
+		}
+
+		private void SetZoomFactorForMacroModeDevice()
+		{
+			if (!IsMacroModeDevice())
+				return;
+
+			if (captureDevice.VirtualDeviceSwitchOverVideoZoomFactors.Length == 0)
+				return;
+
+			try
+			{
+				CaptureDevicePerformWithLockedConfiguration(() =>
+				{
+					var defaultZoomFactor = captureDevice.VirtualDeviceSwitchOverVideoZoomFactors.Select(f => f.FloatValue).First();
+					captureDevice.RampToVideoZoom(defaultZoomFactor, 0.25f);
+				});
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex);
 			}
 		}
 
