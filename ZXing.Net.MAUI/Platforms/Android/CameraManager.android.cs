@@ -1,5 +1,7 @@
-﻿using Android.Graphics;
+﻿using System.Runtime.Versioning;
+using Android.Graphics;
 using AndroidX.Camera.Core;
+using AndroidX.Camera.Core.ResolutionSelector;
 using AndroidX.Camera.Lifecycle;
 using AndroidX.Camera.View;
 using AndroidX.Core.Content;
@@ -7,8 +9,10 @@ using Java.Util.Concurrent;
 
 namespace ZXing.Net.Maui
 {
+    [SupportedOSPlatform("android24.0")]
     internal partial class CameraManager
     {
+        ResolutionSelector resolutionSelector;
         AndroidX.Camera.Core.Preview cameraPreview;
         ImageAnalysis imageAnalyzer;
         PreviewView previewView;
@@ -16,6 +20,8 @@ namespace ZXing.Net.Maui
         CameraSelector cameraSelector = null;
         ProcessCameraProvider cameraProvider;
         ICamera camera;
+
+        static readonly Android.Util.Size screenSize = new(640, 480);
 
         public NativePlatformCameraPreviewView CreateNativeView()
         {
@@ -34,15 +40,31 @@ namespace ZXing.Net.Maui
                 // Used to bind the lifecycle of cameras to the lifecycle owner
                 cameraProvider = (ProcessCameraProvider)cameraProviderFuture.Get();
 
-                // Preview
-                cameraPreview = new AndroidX.Camera.Core.Preview.Builder().Build();
-                cameraPreview.SetSurfaceProvider(cameraExecutor, previewView.SurfaceProvider);
+                resolutionSelector?.Dispose();
 
-                // Frame by frame analyze
-                imageAnalyzer = new ImageAnalysis.Builder()
-                    .SetDefaultResolution(new Android.Util.Size(640, 480))
-                    .SetBackpressureStrategy(ImageAnalysis.StrategyKeepOnlyLatest)
+                resolutionSelector = new ResolutionSelector
+                    .Builder()
+                    .SetResolutionStrategy(new ResolutionStrategy(screenSize, ResolutionStrategy.FallbackRuleClosestHigherThenLower))
                     .Build();
+
+                // Preview
+                cameraPreview?.Dispose();
+
+               cameraPreview = new Preview
+                   .Builder()
+                   .SetResolutionSelector(resolutionSelector)
+                   .Build();
+
+               cameraPreview.SetSurfaceProvider(cameraExecutor, previewView.SurfaceProvider);
+
+               // Frame by frame analyze
+               imageAnalyzer?.Dispose();
+
+               imageAnalyzer = new ImageAnalysis
+                   .Builder()
+                   .SetResolutionSelector(resolutionSelector)
+                   .SetBackpressureStrategy(ImageAnalysis.StrategyKeepOnlyLatest)
+                   .Build();
 
                 imageAnalyzer.SetAnalyzer(cameraExecutor, new FrameAnalyzer((buffer, size) =>
                     FrameReady?.Invoke(this, new CameraFrameBufferEventArgs(new Readers.PixelBufferHolder { Data = buffer, Size = size }))));
@@ -53,7 +75,10 @@ namespace ZXing.Net.Maui
         }
 
         public void Disconnect()
-        { }
+        {
+            cameraProvider?.UnbindAll();
+            cameraExecutor?.Shutdown();
+        }
 
         public void UpdateCamera()
         {
@@ -105,10 +130,29 @@ namespace ZXing.Net.Maui
 
         public void Dispose()
         {
-            cameraProvider?.ShutdownAsync();
+            imageAnalyzer?.Dispose();
+            imageAnalyzer = null;
 
-            cameraExecutor?.Shutdown();
+            cameraPreview?.Dispose();
+            cameraPreview = null;
+
+            resolutionSelector?.Dispose();
+            resolutionSelector = null;
+
+            cameraSelector?.Dispose();
+            cameraSelector = null;
+
+            cameraProvider?.Dispose();
+            cameraProvider = null;
+
+            previewView?.Dispose();
+            previewView = null;
+
             cameraExecutor?.Dispose();
+            cameraExecutor = null;
+
+            camera?.Dispose();
+            camera = null;
         }
     }
 }
